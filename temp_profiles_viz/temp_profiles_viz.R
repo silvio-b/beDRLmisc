@@ -9,6 +9,7 @@ df$datetime <- as.POSIXct(df$datetime, format ="%Y-%m-%d %H:%M:%S")
 # subsetting the two dataframes to show specific days
 interval_start = "2024-12-10"
 interval_end = "2024-12-13"
+
 df_plot <- df[(df$datetime >= interval_start) & (df$datetime < interval_end),]
 
 # Creating a support dataframe for the visualization
@@ -32,7 +33,7 @@ col_colors = c("Indoor air"="cornflowerblue",
                "Not acceptable values"="red")
 
 # Define custom breaks for x-axis
-x_axis_breaks <- c(c(df_occ_range_plot$min_datetime, df_occ_range_plot$max_datetime),
+x_axis_breaks <- c(c(df_occ_range$min_datetime, df_occ_range$max_datetime),
                    unique(as.Date(df_plot$datetime)))
 
 # Build the plot
@@ -57,13 +58,15 @@ g1 <- ggplot()+
                                 color = "Indoor air"), linewidth = 1) +
   # 4th layer: scatter plot of indoor air temperature values excluding points falling
   # outside the acceptability range
-  geom_point(data = df_plot[!(df_plot$tint < 20 & df_plot$tint_sp >17),], 
+  geom_point(data = df_plot[!(df_plot$tint < 20 & df_plot$tint_sp > 17) | 
+                              !(df_plot$tint > 22 & df_plot$tint_sp > 17),], 
              aes(x = datetime,
                  y = tint),
              color='cornflowerblue') +
   # 5th layer: scatter plot of indoor air temperature values including only points falling
   # inside the acceptability range
-  geom_point(data = df_plot[(df_plot$tint < 20 & df_plot$tint_sp >17),], 
+  geom_point(data = df_plot[(df_plot$tint < 20 & df_plot$tint_sp > 17) | 
+                              (df_plot$tint > 22 & df_plot$tint_sp > 17),], 
              aes(x = datetime,
                  y = tint,
                  color='Not acceptable values'), size = 2, shape = 4) +
